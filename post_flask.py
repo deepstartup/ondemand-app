@@ -5,9 +5,14 @@ from config import config
 from postgre_conn_all import connect
 import random, string
 import psycopg2
+from flask_cors import CORS, cross_origin
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_ALLOW_ALL_ORIGINS'] = True
+app.config['CORS_ORIGIN_WHITELIST'] = ('http://localhost:3000', 'http://localhost:3002','localhost:3002','http://127.0.0.1:3002')
+@cross_origin()
 
-from flask import current_app
 
 @app.route("/subscriber/create",  methods = ['POST'])
 def createSubscriber():
@@ -131,4 +136,4 @@ def SetAllService():
     print(data)
     return json.dumps(data)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
