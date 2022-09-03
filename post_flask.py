@@ -4,7 +4,10 @@ import json
 from config import config
 from postgre_conn_all import connect
 import random, string
+import psycopg2
 app = Flask(__name__)
+
+from flask import current_app
 
 @app.route("/subscriber/create",  methods = ['POST'])
 def createSubscriber():
@@ -39,16 +42,21 @@ def createCampaign():
     main_conn.do_insert(postgres_insert_query,record_to_insert)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
-@app.route("/subcampconnect/create",  methods = ['POST'])
+@app.route("/services/create",  methods = ['POST'])
 def createSCConnect():
     json_text=request.get_json()
-    subs_id=json_text['subID']
-    camp_id=json_text['campID']
-    subscription_activation_date=json_text['subscriptionActivationDate']
+    serviceId=json_text['serviceId']
+    serviceName=json_text['serviceName']
+    serviceDescription=json_text['serviceDescription']
+    serviceStartDate=json_text['serviceStartDate']
+    serviceEndDate=json_text['serviceEndDate']
+    serviceActiveFlag=json_text['serviceActiveFlag']
+    #subscription_activation_date=json_text['subscriptionActivationDate']
     params_all=config()
     main_conn=connect(params_all)
-    postgres_insert_query = """INSERT INTO public.subs_camp_connect(subs_id,camp_id,subscription_activation_date,activation_flag) VALUES (%s,%s,%s,%s)"""
-    record_to_insert = (subs_id,camp_id,subscription_activation_date,'Y')
+    postgres_insert_query = """INSERT INTO kvx_db_prod.kvx_services
+        (service_id, service_name, service_description, service_start_date, service_end_date, service_active_flag) VALUES (%s,%s,%s,%s,%s,%s)"""
+    record_to_insert = (serviceId, serviceName, serviceDescription, serviceStartDate, serviceEndDate, serviceActiveFlag)
     main_conn.do_insert(postgres_insert_query,record_to_insert)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
@@ -104,6 +112,23 @@ def updateOrder():
     main_conn.do_insert(postgres_update_query,record_to_update)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 #####End of update service########
-
+@app.route("/service/All",  methods = ['GET'])
+def SetAllService():
+    json_text=request.get_json()
+    params_all=config()
+    print('Connecting to the PostgreSQL database...')
+    conn = psycopg2.connect(**params_all)
+    cur = conn.cursor()
+    print('PostgreSQL database version:')
+    cur.execute('select * from kvx_db_prod.kvx_services;')
+    servicesall = cur.fetchall()
+    print('show>>',servicesall)
+    cur.close()
+    data:list=[]
+    for _servicesall in servicesall:
+        service_name:dict={'service_id':_servicesall[0],'service_name':_servicesall[1]}
+        data.append(service_name)
+    print(data)
+    return json.dumps(data)
 if __name__ == "__main__":
     app.run()
