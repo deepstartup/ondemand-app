@@ -6,9 +6,12 @@ from postgre_conn_all import connect
 import random, string
 import psycopg2
 from flask_cors import CORS, cross_origin
+
+
 app = Flask(__name__)
+
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+# app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['CORS_ALLOW_ALL_ORIGINS'] = True
 app.config['CORS_ORIGIN_WHITELIST'] = ('http://localhost:3000', 'http://localhost:3002','localhost:3002','http://127.0.0.1:3002')
 @cross_origin()
@@ -117,9 +120,13 @@ def updateOrder():
     main_conn.do_insert(postgres_update_query,record_to_update)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 #####End of update service########
+
+
+
+
 @app.route("/service/All",  methods = ['GET'])
 def SetAllService():
-    json_text=request.get_json()
+    # json_text=request.get_json()
     params_all=config()
     print('Connecting to the PostgreSQL database...')
     conn = psycopg2.connect(**params_all)
@@ -135,5 +142,8 @@ def SetAllService():
         data.append(service_name)
     print(data)
     return json.dumps(data)
+
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, port=5001)
