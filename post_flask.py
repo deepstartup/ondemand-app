@@ -144,6 +144,25 @@ def SetAllService():
     return json.dumps(data)
 
 
+@app.route("/service/service_provider",  methods = ['GET'])
+def getServiceProvider():
+    # json_text=request.get_json()
+    params_all=config()
+    print('Connecting to the PostgreSQL database...')
+    conn = psycopg2.connect(**params_all)
+    cur = conn.cursor()
+    print('PostgreSQL database version:')
+    cur.execute('select ksp.service_provider_id, ks.sp_enterprice_name  from kvx_db_prod.kvx_service_provider as ksp, kvx_db_prod.kvx_sp_enterprise as ks where ksp.service_provider_id =ks.sp_service_provider_id;')
+    servicesall = cur.fetchall()
+    print('show>>',servicesall)
+    cur.close()
+    data:list=[]
+    for _servicesall in servicesall:
+        service_name:dict={'service_id':_servicesall[0],'service_name':_servicesall[1]}
+        data.append(service_name)
+    print(data)
+    return json.dumps(data)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
