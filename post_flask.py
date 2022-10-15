@@ -162,7 +162,26 @@ def getServiceProvider():
         data.append(service_name)
     print(data)
     return json.dumps(data)
-
+#added the function for calling the customer booking details view with cust id : example : http://localhost:5001/customer/BookAllView?id=1
+@app.route("/customer/BookAllView",  methods = ['GET'])
+def CountAllBookingGet():
+    params_all=config()
+    custId = int(request.args.get('id'))
+    print('Connecting to the PostgreSQL database...')
+    conn = psycopg2.connect(**params_all)
+    cur = conn.cursor()
+    print('PostgreSQL database version:')
+    query=f'select * from kvx_db_prod.kvx_vw_cust_bk_det where cust_id={custId}'
+    cur.execute(query)
+    servicesall = cur.fetchall()
+    print('show>>',servicesall)
+    cur.close()
+    data:list=[]
+    for _servicesall in servicesall:
+        service_name:dict={'service_name':_servicesall[0],'service_description':_servicesall[1],'service_active_flag':_servicesall[2],'service_provider_type':_servicesall[3] ,'service_provider_activation_flag':_servicesall[4],'sp_enterprice_name':_servicesall[5],'sp_enterprice_owner':_servicesall[6],'enterprice_primary_mobile_no':_servicesall[7],'sp_location_type':_servicesall[8],'sp_location_lat':_servicesall[9],'sp_location_long':_servicesall[10],'sp_location_street_add1':_servicesall[11],'sp_location_street_add2':_servicesall[12],'sp_location_city':_servicesall[13],'sp_location_country':_servicesall[14],'sp_location_zip_code':_servicesall[15],'sp_first_name':_servicesall[16],'sp_last_name':_servicesall[17],'sp_gender':_servicesall[18],'individual_primary_mobile_no':_servicesall[19],'order_datetime':_servicesall[20],'order_status':_servicesall[21],'order_type':_servicesall[22],'order_qty':_servicesall[23] ,'payment_type':_servicesall[24],'payment_date_time':_servicesall[25],'payment_amount':_servicesall[26],'rating':_servicesall[27] ,'review_timestamp':_servicesall[28],'review_comments':_servicesall[29],'cust_id':_servicesall[30],'cust_first_name':_servicesall[31],'cust_last_name':_servicesall[32],'cust_primary_mobile_no':_servicesall[33],'cust_location_lat':_servicesall[34],'cust_location_long':_servicesall[35],'cust_location_zip_code':_servicesall[36],'cust_activation_flag':_servicesall[37],'favourite_flag':_servicesall[38],'order_id':_servicesall[39],'reviewer_type':_servicesall[40]}
+        data.append(service_name)
+    print('data==',data)
+    return json.dumps(data,indent=4, sort_keys=True, default=str)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
